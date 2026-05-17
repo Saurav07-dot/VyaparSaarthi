@@ -72,6 +72,8 @@ function Dashboard() {
     useState(null)
   const [showAllIssues, setShowAllIssues] =
   useState(false)
+  const [showNotifications, setShowNotifications] =
+  useState(false);
 
   const [stats, setStats] =
     useState({
@@ -429,7 +431,32 @@ const handleDownloadReport =
     showAllIssues
       ? filteredIssues
       : filteredIssues.slice(0, 2)
+  
+  const notifications = [
+    ...filteredIssues.slice(0,2).map(issue=>({
+    type:"issue",
+    message:`${issue.items} products affected by ${issue.title}`
+    })),
 
+    products.length > 0 && {
+
+    type:"success",
+
+    message:
+    `Best Product: ${
+    products
+    .sort(
+    (a,b)=>
+    b.overallScore-
+    a.overallScore
+    )[0]?.title
+    }`
+
+    }
+
+    ].filter(Boolean);
+
+    const notificationCount = notifications.length;
   const { theme } = useTheme();
 
   const chartData = [
@@ -461,16 +488,57 @@ const handleDownloadReport =
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="glass-panel px-4 py-2.5 rounded-xl text-sm text-slate-700 dark:text-zinc-300 flex items-center gap-2 border-slate-200 dark:border-white/5 transition-colors duration-300">
-              <Calendar size={16} className="text-slate-500 dark:text-zinc-400" />
-              May 15 - May 21, 2024
-              <ChevronDown size={14} className="ml-2 text-slate-400 dark:text-zinc-500" />
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="glass-panel w-10 h-10 rounded-xl flex items-center justify-center relative hover:bg-slate-100 dark:hover:bg-white/5 transition"
+              >
+
+                <Bell
+                  size={18}
+                  className="text-slate-600 dark:text-zinc-300"
+                />
+
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                    {notificationCount}
+                  </span>
+                )}
+
+              </button>
+
+              {showNotifications && (
+
+                <div className="absolute right-0 mt-3 w-[330px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-[999] overflow-hidden">
+
+                  <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 font-semibold">
+                    Notifications
+                  </div>
+
+                  <div className="max-h-[300px] overflow-y-auto">
+
+                    {notifications.map((item, index) => (
+
+                      <div
+                        key={index}
+                        className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+                      >
+
+                        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                          {item.message}
+                        </p>
+
+                      </div>
+
+                    ))}
+
+                  </div>
+
+                </div>
+
+              )}
+
             </div>
-            
-            <button className="glass-panel w-10 h-10 rounded-xl flex items-center justify-center relative border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-300">
-              <Bell size={18} className="text-slate-600 dark:text-zinc-300" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-violet-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold border border-white dark:border-[#0b0f19] transition-colors duration-300">3</span>
-            </button>
             
             <button
                 onClick={handleDownloadReport}
@@ -487,7 +555,7 @@ const handleDownloadReport =
           {/* AI Readiness Score Panel */}
           <div className="col-span-7 glass-panel rounded-3xl p-6 flex flex-col relative overflow-hidden border-slate-200 dark:border-white/5 transition-colors duration-300">
              <div className="flex items-center gap-2 mb-8">
-               <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight transition-colors duration-300">AI Readiness Score</h2>
+               <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight transition-colors duration-300">Store Readiness Score</h2>
                <Info size={14} className="text-slate-400 dark:text-zinc-500 cursor-pointer" />
              </div>
              
@@ -567,7 +635,7 @@ const handleDownloadReport =
                        Good Progress! <Rocket size={18} className="text-purple-500 dark:text-purple-400" />
                      </h3>
                      <p className="text-[13px] text-slate-600 dark:text-zinc-400 max-w-[200px] leading-relaxed mt-2 transition-colors duration-300">
-                       Your store is in the top 18% of stores using AI optimization.
+                       Your store is in the top 35% of stores using AI optimization.
                      </p>
                    </div>
                    
@@ -575,7 +643,7 @@ const handleDownloadReport =
                      <div className="flex items-center gap-3">
                         <Users size={16} className="text-blue-500" />
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-slate-900 dark:text-white transition-colors duration-300">Top 18%</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white transition-colors duration-300">Top 35%</span>
                           <span className="text-[10px] text-slate-500 dark:text-zinc-500 transition-colors duration-300">of stores</span>
                         </div>
                      </div>
@@ -684,8 +752,8 @@ const handleDownloadReport =
         <div className="grid grid-cols-12 gap-6 mb-6">
 
           {/* LEFT */}
-          <div className="col-span-7">
-            <div className="glass-panel rounded-3xl p-6 border-slate-200 dark:border-white/5">
+          <div className="col-span-7 relative overflow-visible">
+            <div className="glass-panel rounded-3xl p-6 border-slate-200 dark:border-white/5 relative overflow-visible z-[999]">
 
               <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-white/5 pb-5">
                 <div className="flex items-center gap-3">
@@ -699,11 +767,11 @@ const handleDownloadReport =
 
                   <div>
                     <h2 className="text-xl font-bold">
-                      AI Issue Detection
+                      Product Issue Tracker
                     </h2>
 
                     <p className="text-[13px] text-slate-500">
-                      Critical problems affecting AI shopping performance
+                      Critical issues affecting product performance
                     </p>
                   </div>
 
@@ -721,7 +789,7 @@ const handleDownloadReport =
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-visible">
 
                 {visibleIssues.map((issue,index)=>(
                   <IssueCard

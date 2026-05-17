@@ -353,6 +353,8 @@ text-white
 
 </div>
 
+<div className="flex flex-col leading-tight">
+
 <span
 className="
 font-medium
@@ -360,11 +362,14 @@ text-zinc-700
 dark:text-white
 "
 >
-
-Kasparo AI
-
+Saarthi Assist
 </span>
 
+<div className="text-[10px] text-slate-500 dark:text-zinc-500 transition-colors duration-300">
+Your personalized voice assistant
+</div>
+
+</div>
 </button>
 
 }

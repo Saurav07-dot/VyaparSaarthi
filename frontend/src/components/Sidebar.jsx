@@ -164,13 +164,13 @@ function Sidebar() {
 
             <h1 className="text-lg font-bold text-zinc-900 dark:text-white leading-tight">
 
-              AI Rep Optimizer
+              VYAPARsaarthi
 
             </h1>
 
             <p className="text-xs text-zinc-500">
 
-              AI Commerce Intelligence
+              Smart Merchant Companion
 
             </p>
 

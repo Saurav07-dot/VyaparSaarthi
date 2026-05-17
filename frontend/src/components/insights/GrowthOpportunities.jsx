@@ -1,6 +1,4 @@
-import {
-  Rocket,
-} from "lucide-react";
+import { Rocket } from "lucide-react";
 
 function GrowthOpportunities({
   opportunities,
@@ -8,39 +6,70 @@ function GrowthOpportunities({
 
   return (
 
-    <div className="bg-[#1e293b] rounded-2xl p-6 mb-8">
+    <div
+    className="
+    bg-white
+    dark:bg-zinc-900
+    rounded-2xl
+    p-6
+    mb-8
+    border
+    border-zinc-200
+    dark:border-zinc-800
+    shadow-sm
+    ">
 
-      <h2 className="text-2xl font-bold text-white mb-6">
+      <h2
+      className="
+      text-2xl
+      font-bold
+      text-zinc-900
+      dark:text-white
+      mb-6
+      ">
         Growth Opportunities
       </h2>
 
       <div className="space-y-4">
 
         {opportunities.map(
-          (item, index) => (
+        (item,index)=>(
 
-            <div
-              key={index}
-              className="bg-slate-800 rounded-xl p-4 flex gap-3"
-            >
+          <div
+          key={index}
 
-              <Rocket
-                size={18}
-                className="text-indigo-400 mt-1"
-              />
+          className="
+          bg-zinc-100
+          dark:bg-zinc-800
+          rounded-xl
+          p-4
+          flex
+          gap-3
+          ">
 
-              <p className="text-slate-300">
-                {item}
-              </p>
+            <Rocket
+            size={18}
+            className="text-violet-500 mt-1"
+            />
 
-            </div>
-          )
-        )}
+            <p
+            className="
+            text-zinc-600
+            dark:text-zinc-300
+            ">
+              {item}
+            </p>
+
+          </div>
+
+        ))}
 
       </div>
 
     </div>
+
   );
+
 }
 
 export default GrowthOpportunities;

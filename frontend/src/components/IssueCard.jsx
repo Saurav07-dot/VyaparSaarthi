@@ -144,7 +144,7 @@ function IssueCard({
                 <Sparkles size={12} />
 
                 <span>
-                  AI detected issue
+                  Product Issue Detected
                 </span>
 
               </div>
@@ -234,11 +234,18 @@ function IssueCard({
       {/* FLOATING HOVER PANEL */}
 
       <div className="
-        absolute hidden group-hover:block
-        left-full ml-4 top-1/2
+        absolute
+        hidden
+        group-hover:block
+
+        top-1/2
         -translate-y-1/2
-        w-[340px] z-50
-      ">
+
+        right-[-355px]
+
+        w-[340px]
+        z-[999]
+        ">
 
         <div className="
           bg-white dark:bg-[#111827]

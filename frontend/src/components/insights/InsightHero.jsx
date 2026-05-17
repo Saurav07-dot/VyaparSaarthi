@@ -1,6 +1,4 @@
-import {
-  Star,
-} from "lucide-react";
+import { Star } from "lucide-react";
 
 function InsightHero({
   overallHealth,
@@ -11,106 +9,106 @@ function InsightHero({
 
   return (
 
-    <div className="bg-indigo-600 rounded-3xl p-8 text-white mb-8">
+<div
+className="
+bg-gradient-to-r
+from-violet-600
+to-indigo-600
+dark:from-violet-700
+dark:to-indigo-900
+rounded-3xl
+p-8
+mb-8
+text-white
+shadow-lg
+">
 
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-8">
+<div className="flex flex-col lg:flex-row justify-between items-center gap-8">
 
-        {/* LEFT SIDE */}
+<div>
 
-        <div>
+<p className="uppercase text-sm tracking-widest text-indigo-100 mb-2">
+Store Health
+</p>
 
-          <p className="uppercase text-sm tracking-widest text-indigo-100 mb-2">
+<h1 className="text-5xl font-bold mb-3">
+{overallHealth}/100
+</h1>
 
-            Store Health
+<div className="flex items-center gap-4 mb-5 flex-wrap">
 
-          </p>
+<span className="bg-white/10 border border-white/20 px-4 py-2 rounded-full text-sm">
+{storeStatus}
+</span>
 
-          <h1 className="text-5xl font-bold mb-3">
+<div className="flex items-center gap-2">
 
-            {overallHealth}/100
+<div className="flex gap-1">
 
-          </h1>
+{[1,2,3,4,5].map((star)=>(
 
-          {/* STATUS + STAR RATING */}
+<Star
+key={star}
+size={18}
+className={
+star<=Math.round(storeRating)
+?
+"fill-yellow-400 text-yellow-400"
+:
+"text-white/40"
+}
+/>
 
-          <div className="flex items-center gap-4 mb-5 flex-wrap">
+))}
 
-            {/* STORE STATUS */}
+</div>
 
-            <span className="bg-white/10 border border-white/20 px-4 py-2 rounded-full text-sm font-medium">
+<span>
+{storeRating}
+</span>
 
-              {storeStatus}
+</div>
 
-            </span>
+</div>
 
-            {/* STAR RATING */}
+<p className="max-w-2xl text-indigo-100 leading-relaxed">
+{summary}
+</p>
 
-            <div className="flex items-center gap-2">
+</div>
 
-              <div className="flex items-center gap-1">
+<div
+className="
+w-40
+h-40
+rounded-full
+border-[8px]
+border-white/20
+flex
+items-center
+justify-center
+">
 
-                {[1, 2, 3, 4, 5].map((star) => (
+<div className="text-center">
 
-                  <Star
-                    key={star}
-                    size={18}
-                    className={
-                      star <= Math.round(storeRating)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-white/40"
-                    }
-                  />
+<p className="text-4xl font-bold">
+{overallHealth}
+</p>
 
-                ))}
+<p>
+Overall
+</p>
 
-              </div>
+</div>
 
-              <span className="text-sm font-medium">
+</div>
 
-                {storeRating}
+</div>
 
-              </span>
+</div>
 
-            </div>
+);
 
-          </div>
-
-          {/* SUMMARY */}
-
-          <p className="max-w-2xl text-indigo-100 leading-relaxed">
-
-            {summary}
-
-          </p>
-
-        </div>
-
-        {/* RIGHT SIDE */}
-
-        <div className="w-40 h-40 rounded-full border-8 border-white/20 flex items-center justify-center">
-
-          <div className="text-center">
-
-            <p className="text-4xl font-bold">
-
-              {overallHealth}
-
-            </p>
-
-            <p className="text-sm">
-
-              Overall
-
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  );
 }
 
 export default InsightHero;
