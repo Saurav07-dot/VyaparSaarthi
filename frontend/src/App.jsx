@@ -14,7 +14,7 @@ import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 
 import RecommendationPage from "./pages/RecommendationPage"
-
+import AISimulation from "./pages/AISimulation";
 import Insights from "./pages/Insights";
 import AIProductStudio from "./pages/AIProductStudio";
 import Settings from "./pages/Settings";
@@ -118,6 +118,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/simulation"
+          element={
+            <ProtectedRoute>
+
+              <AISimulation/>
+
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/settings"
           element={

@@ -6,7 +6,8 @@ import {
   useEffect,
   useState,
 } from "react"
-
+import { Brain,Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Sidebar
 from "../components/Sidebar"
 
@@ -61,7 +62,7 @@ function Dashboard() {
   // =====================================
   // STATES
   // =====================================
-
+  const navigate = useNavigate();
   const [products, setProducts] =
     useState([])
 
@@ -488,6 +489,26 @@ const handleDownloadReport =
           </div>
 
           <div className="flex items-center gap-4">
+            <div
+            onClick={()=>navigate("/simulation")}
+            className="glass-panel group h-10 px-3 rounded-xl flex items-center gap-2 cursor-pointer border border-slate-200 dark:border-white/5 hover:bg-slate-100 dark:hover:bg-white/5 transition-all duration-300"
+            >
+
+            <div className="w-6 h-6 rounded-md bg-gradient-to-r from-indigo-500 to-violet-500 flex items-center justify-center">
+            <Brain size={12} className="text-white"/>
+            </div>
+
+            <span className="text-sm font-medium text-slate-700 dark:text-zinc-200">
+            AI Simulation
+            </span>
+
+            <Sparkles
+            size={12}
+            className="text-indigo-500 opacity-60 group-hover:rotate-12 transition"
+            />
+
+            </div>
+            
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}

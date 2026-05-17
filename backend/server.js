@@ -22,6 +22,7 @@ const app = express();
 
 const voiceRoutes = require("./routes/voiceRoutes");
 
+const simulationRoutes = require("./routes/simulationRoutes");
 // middleware
 app.use(cors());
 
@@ -70,6 +71,10 @@ app.use(
 app.use(
   "/api/voice",
   voiceRoutes
+);
+app.use(
+  "/api/simulation",
+  simulationRoutes
 );
 app.use(
 

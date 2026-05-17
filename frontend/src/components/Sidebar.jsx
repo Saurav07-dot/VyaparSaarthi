@@ -89,6 +89,12 @@ function Sidebar() {
     },
 
     {
+      name:"AI Simulation",
+      icon:Sparkles,
+      path:"/simulation"
+    },
+
+    {
       name: "Insights",
 
       icon:
@@ -244,26 +250,24 @@ function Sidebar() {
 
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-2">
 
-            Improve your
+            Will AI Recommend
             <br />
-            AI Readiness Score
+            Your Products?
 
           </h3>
 
           <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-4 leading-relaxed">
 
-            Follow our recommendations
-            to make your store fully
-            AI-friendly.
+            Discover Your AI Visibility Score
 
           </p>
 
           <Link
-            to="/recommendations"
+            to="/simulation"
             className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium py-2.5 rounded-lg transition flex items-center justify-center gap-2"
           >
 
-            View Recommendations
+            Start AI Simulation
 
             <ArrowRight size={14} />
 
