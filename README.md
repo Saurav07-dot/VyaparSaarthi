@@ -560,13 +560,13 @@ MONGO_URI=your_mongodb_connection_string
 
 JWT_SECRET=your_secret_key
 
-GEMINI_API_KEY=your_gemini_api_key
+GEMINI_API_KEY=your_gemini_api_key1
 
-GEMINI_RECOMMENDATION_KEY=your_gemini_recommendation_key
+GEMINI_RECOMMENDATION_KEY=your_gemini_api_key2
 
-GEMINI_STUDIO_API=your_gemini_studio_key
+GEMINI_STUDIO_API=your_gemini_api_key3
 
-GEMINI_VOICE_KEY=your_gemini_voice_key
+GEMINI_VOICE_KEY=your_gemini_api_key4
 ```
 
 ---
