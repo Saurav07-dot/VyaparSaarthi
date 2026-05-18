@@ -450,54 +450,141 @@ backend/
 ```
 
 ---
+# Installation & Setup
 
-# Installation
-
-Clone repository:
-
-```bash
-git clone <repository-url>
-```
-
-Install frontend:
+## 1. Clone Repository
 
 ```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Install backend:
-
-```bash
-cd backend
-npm install
-npm start
+git clone <your-repository-url>
+cd VYAPARSaarthi
 ```
 
 ---
 
-# Environment Variables
+## 2. Install Frontend Dependencies
+
+Move to frontend folder:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Core frontend packages used:
+
+```bash
+react
+react-router-dom
+axios
+tailwindcss
+lucide-react
+framer-motion
+recharts
+```
+
+Start frontend:
+
+```bash
+npm run dev
+```
+
+Frontend runs at:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## 3. Install Backend Dependencies
+
+Open a new terminal:
+
+```bash
+cd backend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Core backend packages used:
+
+```bash
+express
+mongoose
+cors
+dotenv
+jsonwebtoken
+bcryptjs
+multer
+@google/generative-ai
+nodemon
+```
+
+Start backend:
+
+```bash
+nodemon server.js
+```
+
+Backend runs at:
+
+```text
+http://localhost:5000
+```
+
+---
+
+## 4. Environment Variables
 
 Create:
 
-```env
+```text
 backend/.env
 ```
 
 Add:
 
 ```env
-MONGO_URI=
-
-OPENAI_API_KEY=
-
-JWT_SECRET=
-
 PORT=5000
+
+MONGO_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_secret_key
+
+GEMINI_API_KEY=your_gemini_api_key
+
+GEMINI_RECOMMENDATION_KEY=your_gemini_recommendation_key
+
+GEMINI_STUDIO_API=your_gemini_studio_key
+
+GEMINI_VOICE_KEY=your_gemini_voice_key
 ```
 
 ---
+
+## 5. Run Project
+
+Frontend:
+
+```bash
+npm run dev
+```
+
+Backend:
+
+```bash
+nodemon server.js
+```
+--- 
 
 # Future Improvements
 
