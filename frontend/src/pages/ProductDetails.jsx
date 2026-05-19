@@ -549,7 +549,6 @@ function ProductDetails() {
         </div>
 
       )}
-
     </div>
   );
 }
