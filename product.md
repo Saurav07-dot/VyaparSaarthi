@@ -513,6 +513,6 @@ The current build demonstrates the core concept. Planned improvements for future
 
 **VYAPARsaarthi** — *Helping merchants improve AI visibility and product discoverability.*
 
-Built with ❤️ for the Kasparro Agentic Commerce Hackathon
+Built for the Kasparro Agentic Commerce Hackathon
 
 </div>
