@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import loginIllustration from "../assets/login_illustration.png";
+import logosaarthi from "../assets/logosaarthi.png";
 
 export default function Login() {
 
@@ -29,7 +30,9 @@ export default function Login() {
   useEffect(() => {
 
     const token =
-      sessionStorage.getItem("token");
+      sessionStorage.getItem(
+        "token"
+      );
 
     if (token) {
       navigate("/dashboard");
@@ -37,105 +40,240 @@ export default function Login() {
 
   }, []);
 
-  const handleLogin = async () => {
+  const handleLogin =
+    async () => {
 
-    if (!email || !password) {
+      if (
+        !email ||
+        !password
+      ) {
 
-      setError(
-        "All fields are required"
-      );
-
-      return;
-    }
-
-    try {
-
-      setLoading(true);
-
-      setError("");
-
-      const res = await fetch(
-        "http://localhost:5000/api/auth/login",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
-
-      const data =
-        await res.json();
-
-      if (!res.ok) {
-
-        setError(data.message);
-
-        setLoading(false);
+        setError(
+          "All fields are required"
+        );
 
         return;
       }
 
-      sessionStorage.setItem(
-        "token",
-        data.token
-      );
+      try {
 
-      sessionStorage.setItem(
-        "user",
-        JSON.stringify(data.user)
-      );
+        setLoading(true);
 
-      navigate("/dashboard");
+        setError("");
 
-    } catch (error) {
+        const res =
+          await fetch(
+            "http://localhost:5000/api/auth/login",
+            {
+              method: "POST",
 
-      setError("Server error");
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
 
-    } finally {
+              body:
+                JSON.stringify({
+                  email,
+                  password,
+                }),
+            }
+          );
 
-      setLoading(false);
-    }
-  };
+        const data =
+          await res.json();
+
+        if (
+          !res.ok
+        ) {
+
+          setError(
+            data.message
+          );
+
+          setLoading(
+            false
+          );
+
+          return;
+        }
+
+        sessionStorage.setItem(
+          "token",
+          data.token
+        );
+
+        sessionStorage.setItem(
+          "user",
+          JSON.stringify(
+            data.user
+          )
+        );
+
+        navigate(
+          "/dashboard"
+        );
+
+      } catch {
+
+        setError(
+          "Server error"
+        );
+
+      } finally {
+
+        setLoading(
+          false
+        );
+      }
+
+    };
 
   return (
 
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="
+      min-h-screen
+      bg-slate-950
+      flex
+      items-center
+      justify-center
+      px-4
+    ">
 
-      <div className="w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl grid md:grid-cols-2">
+      <div className="
+        w-full
+        max-w-5xl
+        bg-slate-900
+        border
+        border-slate-800
+        rounded-3xl
+        overflow-hidden
+        shadow-2xl
+        grid
+        md:grid-cols-2
+      ">
 
         {/* LEFT */}
 
-        <div className="hidden md:flex flex-col justify-center bg-indigo-600 p-12 text-white relative overflow-hidden">
+        <div className="
+          hidden
+          md:flex
+          flex-col
+          justify-center
+          bg-indigo-600
+          p-12
+          text-white
+          relative
+          overflow-hidden
+        ">
 
-          <div className="absolute inset-0 opacity-40 mix-blend-overlay">
-            <img src={loginIllustration} alt="Dashboard UI" className="w-full h-full object-cover" />
+          <div className="
+            absolute
+            inset-0
+            opacity-40
+            mix-blend-overlay
+          ">
+
+            <img
+              src={loginIllustration}
+              alt="Dashboard"
+              className="
+                w-full
+                h-full
+                object-cover
+              "
+            />
+
           </div>
 
-          <div className="absolute w-96 h-96 bg-white/10 rounded-full -top-32 -left-32 blur-3xl"></div>
+          <div className="
+            absolute
+            w-96
+            h-96
+            bg-white/10
+            rounded-full
+            -top-32
+            -left-32
+            blur-3xl
+          "></div>
 
-          <div className="absolute w-80 h-80 bg-white/10 rounded-full -bottom-32 -right-20 blur-3xl"></div>
+          <div className="
+            absolute
+            w-80
+            h-80
+            bg-white/10
+            rounded-full
+            -bottom-32
+            -right-20
+            blur-3xl
+          "></div>
 
-          <div className="relative z-10">
+          <div className="
+            relative
+            z-10
+          ">
 
-            <h1 className="text-4xl font-bold mb-4">
-              Kasparo AI
-            </h1>
+            <div className="
+              flex
+              items-center
+              gap-4
+              mb-8
+            ">
 
-            <p className="text-indigo-100 leading-7 max-w-sm">
-              AI-powered merchant product optimization platform for Shopify stores.
-            </p>
+              <div className="
+                w-16
+                h-16
+                rounded-2xl
+                bg-white
+                p-2
+                flex
+                items-center
+                justify-center
+                shadow-lg
+              ">
 
-            <div className="mt-8 w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
-              🚀
+                <img
+                  src={logosaarthi}
+                  alt="VYAPARsaarthi Logo"
+                  className="
+                    w-full
+                    h-full
+                    object-contain
+                  "
+                />
+
+              </div>
+
+              <div>
+
+                <h1 className="
+                  text-4xl
+                  font-bold
+                ">
+                  VYAPARsaarthi
+                </h1>
+
+                <p className="
+                  text-indigo-100
+                  mt-1
+                ">
+                  AI-powered merchant companion
+                </p>
+
+              </div>
+
             </div>
+
+            <p className="
+              text-indigo-100
+              leading-7
+              max-w-sm
+            ">
+              Helping merchants analyze,
+              improve, and optimize
+              AI visibility across their
+              Shopify products.
+            </p>
 
           </div>
 
@@ -143,19 +281,44 @@ export default function Login() {
 
         {/* RIGHT */}
 
-        <div className="p-8 md:p-12 flex flex-col justify-center">
+        <div className="
+          p-8
+          md:p-12
+          flex
+          flex-col
+          justify-center
+        ">
 
-          <h2 className="text-3xl font-bold text-white mb-2">
+          <h2 className="
+            text-3xl
+            font-bold
+            text-white
+            mb-2
+          ">
             Merchant Login
           </h2>
 
-          <p className="text-slate-400 mb-8">
-            Access your store intelligence dashboard
+          <p className="
+            text-slate-400
+            mb-8
+          ">
+            Access your AI-powered
+            merchant dashboard
           </p>
 
           {error && (
 
-            <div className="mb-4 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3">
+            <div className="
+              mb-4
+              bg-red-500/10
+              border
+              border-red-500/30
+              text-red-400
+              text-sm
+              rounded-xl
+              px-4
+              py-3
+            ">
 
               {error}
 
@@ -163,31 +326,54 @@ export default function Login() {
 
           )}
 
-          <div className="space-y-5">
+          <div className="
+            space-y-5
+          ">
 
             <div>
 
-              <label className="text-sm text-slate-300 block mb-2">
+              <label className="
+                text-sm
+                text-slate-300
+                block
+                mb-2
+              ">
                 Store Email
               </label>
 
               <input
                 type="email"
-                placeholder="admin@peaktrail.com"
+                placeholder="merchant@store.com"
                 value={email}
-                onChange={(e) =>
+                onChange={(e)=>
                   setEmail(
                     e.target.value
                   )
                 }
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500"
+                className="
+                  w-full
+                  bg-slate-950
+                  border
+                  border-slate-700
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-white
+                  outline-none
+                  focus:border-indigo-500
+                "
               />
 
             </div>
 
             <div>
 
-              <label className="text-sm text-slate-300 block mb-2">
+              <label className="
+                text-sm
+                text-slate-300
+                block
+                mb-2
+              ">
                 Password
               </label>
 
@@ -195,12 +381,23 @@ export default function Login() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) =>
+                onChange={(e)=>
                   setPassword(
                     e.target.value
                   )
                 }
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-indigo-500"
+                className="
+                  w-full
+                  bg-slate-950
+                  border
+                  border-slate-700
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-white
+                  outline-none
+                  focus:border-indigo-500
+                "
               />
 
             </div>
@@ -208,32 +405,34 @@ export default function Login() {
           </div>
 
           <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full mt-8 bg-indigo-600 hover:bg-indigo-500 transition-all text-white py-3 rounded-xl font-semibold shadow-lg shadow-indigo-600/20"
+            onClick={
+              handleLogin
+            }
+            disabled={
+              loading
+            }
+            className="
+              w-full
+              mt-6
+              bg-indigo-600
+              hover:bg-indigo-500
+              transition-all
+              text-white
+              py-3
+              rounded-xl
+              font-semibold
+              shadow-lg
+              shadow-indigo-600/20
+            "
           >
 
-            {loading
+            {
+              loading
               ? "Logging in..."
-              : "Access Dashboard"}
+              : "Access Dashboard"
+            }
 
           </button>
-
-          <div className="mt-8 bg-slate-950 border border-slate-800 rounded-2xl p-4">
-
-            <p className="text-white font-semibold mb-2">
-              Demo Store Access
-            </p>
-
-            <p className="text-slate-400 text-sm">
-              admin@peaktrail.com
-            </p>
-
-            <p className="text-slate-400 text-sm">
-              password123
-            </p>
-
-          </div>
 
         </div>
 

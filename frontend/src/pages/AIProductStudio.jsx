@@ -15,7 +15,8 @@ import {
 
 import Sidebar
 from "../components/Sidebar";
-
+import VoiceAssistant
+from "../components/VoiceAssistant";
 import {
   generateAIContent,
 } from "../services/aiStudioService";
@@ -605,7 +606,7 @@ function AIProductStudio() {
         </div>
 
       </div>
-
+    <VoiceAssistant/>
     </div>
   );
 }

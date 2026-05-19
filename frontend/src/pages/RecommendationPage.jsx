@@ -5,7 +5,7 @@ import {
 
 import Sidebar
 from "../components/Sidebar"
-
+import VoiceAssistant from "../components/VoiceAssistant";
 import {
   Sparkles,
   AlertTriangle,
@@ -494,7 +494,7 @@ function RecommendationPage() {
         </div>
 
       </div>
-
+          <VoiceAssistant/>
     </div>
   )
 }

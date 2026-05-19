@@ -13,7 +13,7 @@ import {
 
 import Sidebar
 from "../components/Sidebar";
-
+import VoiceAssistant from "../components/VoiceAssistant";
 import ProductCard
 from "../components/ProductCard";
 
@@ -156,7 +156,7 @@ function Products() {
         )}
 
       </div>
-
+        <VoiceAssistant/>
     </div>
   );
 }

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
-
+import VoiceAssistant from "../components/VoiceAssistant";
 import {
   useNavigate,
 } from "react-router-dom";
@@ -553,7 +553,7 @@ Products Optimized
 </div>
 
 </div>
-
+<VoiceAssistant/>
 </div>
 
 );

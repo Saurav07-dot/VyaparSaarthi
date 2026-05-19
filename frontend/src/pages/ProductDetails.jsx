@@ -12,7 +12,7 @@ import { Rocket } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 import Sidebar from "../components/Sidebar";
-
+import VoiceAssistant from "../components/VoiceAssistant";
 import {
   getSingleProduct,
   updateProductWithAI,

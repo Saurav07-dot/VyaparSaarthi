@@ -9,7 +9,7 @@ import {
 
 import Sidebar
 from "../components/Sidebar";
-
+import VoiceAssistant from "../components/VoiceAssistant";
 import {
   getInsights,
 } from "../services/insightService";
@@ -228,7 +228,7 @@ function Insights() {
         <div className="pb-8" />
 
       </div>
-
+          <VoiceAssistant/>
     </div>
   );
 }
