@@ -216,7 +216,34 @@ conversion
 )/4
 
 );
+if(product.overallScore>=80){
 
+product.classification=
+"Excellent";
+
+}
+else if(
+product.overallScore>=60
+){
+
+product.classification=
+"Good";
+
+}
+else if(
+product.overallScore>=40
+){
+
+product.classification=
+"Average";
+
+}
+else{
+
+product.classification=
+"worst";
+
+}
 
 
 product.aiAnalysis.summary=
