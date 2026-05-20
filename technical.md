@@ -1,0 +1,981 @@
+# VYAPARsaarthi — Technical Documentation
+
+**Version:** 1.0.0  
+**Hackathon:** Kasparro Agentic Commerce Hackathon  
+**Track:** Track 5 (Advanced) — AI Representation Optimizer  
+**Team:** PLAN B — Saurav Kumar · Ankit Kumar Jha
+
+---
+
+## Table of Contents
+
+1. [System Architecture](#1-system-architecture)
+2. [Tech Stack](#2-tech-stack)
+3. [Database Models](#3-database-models)
+4. [Seed Data](#4-seed-data)
+5. [AI Scoring Engine](#5-ai-scoring-engine)
+6. [Feature Modules](#6-feature-modules)
+7. [API Reference](#7-api-reference)
+8. [User Flow](#8-user-flow)
+9. [Installation & Setup](#9-installation--setup)
+10. [Environment Variables](#10-environment-variables)
+11. [Folder Structure](#11-folder-structure)
+12. [Future Scope](#12-future-scope)
+
+---
+
+## 1. System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        React Frontend                        │
+│   Dashboard │ Products │ Simulation │ Studio │ Voice UI     │
+└────────────────────────┬────────────────────────────────────┘
+                         │ REST API (HTTP/JSON)
+┌────────────────────────▼────────────────────────────────────┐
+│                  Node.js + Express Backend                   │
+│    Auth Routes │ Product Routes │ AI Routes │ Insight Routes │
+└──────┬──────────────────┬─────────────────────┬─────────────┘
+       │                  │                      │
+┌──────▼──────┐  ┌────────▼────────┐  ┌─────────▼───────────┐
+│   MongoDB   │  │  AI Service     │  │  Gemini API Layer   │
+│             │  │  Layer          │  │                     │
+│  User       │  │ ┌─────────────┐ │  │  GEMINI_API_KEY     │
+│  Store      │  │ │Scoring Eng. │ │  │  RECOMMEND_KEY      │
+│  Product    │  │ ├─────────────┤ │  │  STUDIO_API         │
+│             │  │ │Voice Assist.│ │  │  VOICE_KEY          │
+│             │  │ ├─────────────┤ │  └─────────────────────┘
+│             │  │ │Recommend.   │ │
+│             │  │ ├─────────────┤ │
+│             │  │ │Simulation   │ │
+│             │  │ ├─────────────┤ │
+│             │  │ │Optimization │ │
+│             │  │ └─────────────┘ │
+└─────────────┘  └─────────────────┘
+```
+
+The platform is split into three clear layers. The React frontend talks to the Express backend over a REST API. The backend handles all business logic and delegates AI tasks to a dedicated service layer, which calls the Gemini API. MongoDB stores everything — users, stores, and products.
+
+---
+
+## 2. Tech Stack
+
+### Frontend
+
+| Technology | Purpose |
+|---|---|
+| React 18 | UI framework |
+| React Router v6 | Client-side routing |
+| Tailwind CSS | Styling |
+| Lucide React | Icons |
+| Framer Motion | Animations |
+| Recharts | Score trend charts |
+| Axios | API calls |
+
+Dev server runs at `http://localhost:5173` via Vite.
+
+### Backend
+
+| Technology | Purpose |
+|---|---|
+| Node.js 18+ | Server runtime |
+| Express.js | REST API framework |
+| Mongoose | MongoDB ODM |
+| jsonwebtoken | JWT authentication |
+| bcryptjs | Password hashing |
+| Multer | Image upload handling |
+| @google/generative-ai | Gemini SDK |
+| cors | Cross-origin requests |
+| dotenv | Environment config |
+| nodemon | Dev auto-restart |
+
+Dev server runs at `http://localhost:5000`.
+
+### Database
+
+MongoDB with Mongoose. Three collections: `users`, `stores`, `products`.
+
+### AI Layer
+
+Each AI function gets its own Gemini API key to avoid rate limit conflicts.
+
+| Component | Key Used | What It Does |
+|---|---|---|
+| Scoring Engine | `GEMINI_API_KEY` | Analyses products and generates sub-scores |
+| Voice Assistant | `GEMINI_VOICE_KEY` | Receives transcribed text, returns store-aware response |
+| Recommendation Engine | `GEMINI_RECOMMENDATION_KEY` | Generates prioritised store improvement suggestions |
+| AI Product Studio | `GEMINI_STUDIO_API` | Generates optimised content for new products |
+| Simulation Engine | No Gemini — custom logic | Keyword expansion + weighted scoring against product DB |
+| Optimization Engine | `GEMINI_API_KEY` | Rewrites product content on one-click improvement |
+
+---
+
+## 3. Database Models
+
+The entire backend runs on three Mongoose models. No more, no less.
+
+---
+
+### 3.1 User Model
+
+Handles authentication. Each user is tied to exactly one store via `storeId`.
+
+```javascript
+const UserSchema = new mongoose.Schema(
+  {
+    email:    { type: String, required: true, unique: true },
+    password: { type: String, required: true },           // bcrypt hashed
+    storeId:  { type: String, required: true, unique: true },
+  },
+  { timestamps: true }
+);
+```
+
+**Key points:**
+- `storeId` is a one-to-one link between a user account and a store
+- Password is always stored hashed via bcryptjs — never plaintext
+- `timestamps: true` auto-adds `createdAt` and `updatedAt`
+
+---
+
+### 3.2 Store Model
+
+Holds everything about a merchant's store — profile info, policies, FAQs, aggregate AI scores, and the recommendation data generated by the AI engine.
+
+```javascript
+const StoreSchema = new mongoose.Schema(
+  {
+    storeId:   { type: String, required: true, unique: true },
+    email:     { type: String, required: true, unique: true },
+    storeName: String,
+    domain:    String,
+    category:  String,
+
+    // Merchant-defined store policies
+    policies: {
+      returnPolicy:   String,
+      shippingPolicy: String,
+      warrantyPolicy: String,
+    },
+
+    // Store-level FAQ bank
+    faqs: [
+      {
+        question: String,
+        answer:   String,
+      },
+    ],
+
+    // Aggregate AI scores across all products (0–100 each)
+    overallScores: {
+      aiDiscoverability:   { type: Number, default: 0 },
+      productClarity:      { type: Number, default: 0 },
+      trustSignals:        { type: Number, default: 0 },
+      conversionReadiness: { type: Number, default: 0 },
+    },
+
+    // Persisted output from the Recommendation Engine
+    recommendationData: {
+      summary: { type: String, default: "" },
+      recommendations: [
+        {
+          title:       String,
+          description: String,
+          priority:    String,   // "High" | "Medium" | "Low"
+          impact:      String,
+          category:    String,
+          actionItems: [String],
+        },
+      ],
+    },
+
+    recommendationGeneratedAt: Date,
+  },
+  { timestamps: true }
+);
+```
+
+**Key points:**
+- `overallScores` are computed averages from all products in the store — these power the dashboard widgets
+- `recommendationData` is written once by the Recommendation Engine and cached; merchants can regenerate on demand
+- Policies and FAQs are used by the AI when scoring Trust signals — a missing `returnPolicy` will pull the trust score down
+
+---
+
+### 3.3 Product Model
+
+The most detailed model. Covers basic product info, category-specific attributes, all four AI sub-scores, and the full AI analysis output.
+
+```javascript
+const ProductSchema = new mongoose.Schema(
+  {
+    // ── Identity ─────────────────────────────────
+    id:      String,
+    storeId: { type: String, required: true, index: true },
+
+    // ── Core product info ─────────────────────────
+    title:       String,
+    description: String,
+    category:    String,
+    price:       Number,
+    currency:    String,
+    reviews:     Number,
+    rating:      Number,
+    tags:        [String],
+    images:      [String],
+    inStock:     Boolean,
+
+    // ── Category-specific attributes ──────────────
+    // Apparel / Outdoor
+    material:       String,
+    targetGender:   String,
+    sizes:          [String],
+
+    // Furniture / Equipment
+    dimensions:     String,
+    weightCapacity: String,
+
+    // Pet supplies
+    petType:    String,
+    suitableFor: String,
+    weight:      String,
+    ingredients: [String],
+
+    // Skincare
+    skinType:       String,
+    keyIngredients: [String],
+    volume:         String,
+
+    // Coffee
+    roastLevel:   String,
+    origin:       String,
+    process:      String,
+    tastingNotes: [String],
+    brewMethods:  [String],
+
+    // ── AI Scores ─────────────────────────────────
+    scores: {
+      clarity:         { type: Number, default: 0 },
+      discoverability: { type: Number, default: 0 },
+      trust:           { type: Number, default: 0 },
+      conversion:      { type: Number, default: 0 },
+    },
+
+    overallScore:   { type: Number, default: 0 },
+    classification: {
+      type: String,
+      enum: ["Excellent", "Good", "Average", "Worst", "Pending"],
+      default: "Pending",
+    },
+
+    aiProblems:      { type: [String], default: [] },
+    recommendations: { type: [String], default: [] },
+
+    // ── Full AI Analysis Output ───────────────────
+    aiAnalysis: {
+
+      // Overview
+      summary:       { type: String, default: "" },
+      priorityFixes: { type: [String], default: [] },
+
+      // AI-rewritten content
+      generatedTitle:       { type: String, default: "" },
+      generatedDescription: { type: String, default: "" },
+      shortDescription:     { type: String, default: "" },
+
+      // SEO
+      metaTitle:          { type: String, default: "" },
+      metaDescription:    { type: String, default: "" },
+      seoKeywords:        { type: [String], default: [] },
+      highIntentKeywords: { type: [String], default: [] },
+
+      // Content suggestions
+      faqSuggestions: { type: [String], default: [] },
+      ctaSuggestions: { type: [String], default: [] },
+
+      // Trust & UX
+      trustSignalsNeeded: { type: [String], default: [] },
+      missingSections:    { type: [String], default: [] },
+      targetAudience:     { type: [String], default: [] },
+
+      // Image analysis
+      imageQuality: { type: Number, default: 0 },
+      imageAnalysis: {
+        imageIssues:          { type: [String], default: [] },
+        imageRecommendations: { type: [String], default: [] },
+        missingImageTypes:    { type: [String], default: [] },
+      },
+
+      // Cache control
+      analyzedHash: String,
+      lastAnalyzed: Date,
+    },
+  },
+  { timestamps: true }
+);
+```
+
+**Key points:**
+- `storeId` has an index for fast per-store product queries
+- Category-specific fields (coffee, skincare, pets, etc.) are kept flat on the schema — no subdocuments — for simpler querying
+- `scores` holds the four AI sub-scores; `overallScore` is the weighted average computed by the Scoring Engine
+- `aiAnalysis` stores the full output of a Gemini analysis pass — including rewritten content, SEO data, and image feedback. This means AI results are persisted and don't need to be re-generated on every page load
+- `analyzedHash` + `lastAnalyzed` allow the backend to detect whether a product has changed since the last analysis and skip unnecessary Gemini calls
+
+---
+
+## 4. Seed Data
+
+The project ships with a seed script at `backend/seed/seed.js`. Since there's no live Shopify integration yet, all merchant data is synthetic — designed to realistically represent a range of store quality levels.
+
+### What the seed creates
+
+Running the seed script will:
+1. Clear the `users`, `stores`, and `products` collections
+2. Insert 5 stores with different categories and varying levels of data completeness
+3. Insert 35 products spread across those stores (a mix of well-described and poorly-described ones)
+4. Create one user account per store, all using the password `password123`
+
+### Seeded Stores
+
+| Store ID | Store Name | Category | Domain |
+|---|---|---|---|
+| `peaktrail` | PeakTrail Gear | Outdoor & Hiking | peaktrail.myshopify.com |
+| `luminos_skincare` | Luminos Skincare | Skincare & Beauty | luminosskin.myshopify.com |
+| `deskcraft` | DeskCraft Home Office | Home Office & Furniture | deskcraft.myshopify.com |
+| `pawsome_pets` | Pawsome Pets | Pet Supplies | pawsomepets.myshopify.com |
+| `brewlab_coffee` | BrewLab Coffee Co. | Food & Beverage | brewlabcoffee.myshopify.com |
+
+### Login Credentials
+
+| Store | Email | Password |
+|---|---|---|
+| PeakTrail Gear | imsauravkumar95@gmail.com | password123 |
+| Luminos Skincare | admin@luminosskin.com | password123 |
+| DeskCraft Home Office | admin@deskcraft.com | password123 |
+| Pawsome Pets | admin@pawsomepets.com | password123 |
+| BrewLab Coffee Co. | admin@brewlabcoffee.com | password123 |
+
+### Intentional Data Quality Variation
+
+The seed data is deliberately designed with a mix of good and bad products so the AI scoring system has something meaningful to work with.
+
+**Well-described products** (high expected scores) have:
+- Detailed, specific titles with keywords
+- Full descriptions with specifications
+- Populated attributes (material, dimensions, sizes, etc.)
+- Multiple product images
+- Good ratings and review counts
+
+**Poorly-described products** (low expected scores) have:
+- Generic one or two word titles like `"Dog Food"` or `"Coffee"`
+- Minimal descriptions like `"Good coffee."` or `"Healthy food for your dog."`
+- Empty attribute fields
+- Single images
+- Few reviews
+
+This contrast lets the AI improvement features demonstrate a measurable score jump — for example, `pt-001` (TrailBlaze X) is seeded with `description: "Premium outdoor footwear."` and empty attributes, making it a candidate for the before/after optimization demo.
+
+### Running the Seed
+
+```bash
+cd backend
+node seed/seed.js
+```
+
+Expected output:
+
+```
+✅ Connected to MongoDB
+🗑️  Cleared existing data
+📦 Inserted 5 stores
+🛍️  Inserted 35 products
+👤 Inserted 5 users
+✅ Seed complete!
+```
+
+---
+
+## 5. AI Scoring Engine
+
+Every product gets evaluated across four dimensions. These are the same signals that real AI shopping agents look at when deciding what to recommend.
+
+### Scoring Dimensions
+
+| Dimension | Weight | What the engine looks at |
+|---|---|---|
+| Discoverability | 30% | Title quality, keyword richness, tag coverage, search intent alignment |
+| Trust | 30% | Review count, rating, return/warranty policy existence, certifications, ingredient transparency |
+| Clarity | 20% | Description completeness, specificity, ambiguity, structured attributes |
+| Conversion | 20% | Urgency language, value framing, CTA signals, purchase-trigger copy |
+
+### Score Formula
+
+```
+Overall Score = (0.30 × Discoverability)
+              + (0.30 × Trust)
+              + (0.20 × Clarity)
+              + (0.20 × Conversion)
+```
+
+All scores are 0–100. The overall score is also 0–100.
+
+### Classification Tiers
+
+| Score | Classification |
+|---|---|
+| 75–100 | Excellent |
+| 50–74 | Good |
+| 25–49 | Average |
+| 0–24 | Worst |
+
+### When Scores Update
+
+Scores are recalculated and saved back to MongoDB whenever:
+- A merchant clicks "Apply AI Improvements" on a product
+- A full store re-analysis is triggered via the voice assistant (`"Analyze my products"`)
+
+The `analyzedHash` field on the Product model is used to detect content changes — if the product hasn't changed since the last analysis, the engine skips the Gemini call and returns cached scores.
+
+### Example
+
+**Product:** `pt-001` — TrailBlaze X
+
+| State | Score | Why |
+|---|---|---|
+| Before (seed data) | ~28 | Generic title, one-line description, empty attributes, 2 reviews |
+| After AI improvement | ~71 | Rewritten title, full description, populated keywords, trust signals |
+| Delta | +43 pts | — |
+
+---
+
+## 6. Feature Modules
+
+### 6.1 Dashboard
+
+**Route:** `/dashboard`
+
+The first thing a merchant sees after login. Pulls aggregate scores from the Store model's `overallScores` field and surfaces the most urgent product issues.
+
+| Widget | Data Source |
+|---|---|
+| Store Readiness Score | Average of all four `overallScores` fields |
+| AI Discoverability | `store.overallScores.aiDiscoverability` |
+| Product Clarity | `store.overallScores.productClarity` |
+| Trust Signals | `store.overallScores.trustSignals` |
+| Conversion Readiness | `store.overallScores.conversionReadiness` |
+| Bottom 5 Products | Products sorted by `overallScore` ascending |
+| Top Recommendations | `store.recommendationData.recommendations[0..2]` |
+
+---
+
+### 6.2 Product List
+
+**Route:** `/products`
+
+Displays all products for the logged-in store, pulled via `storeId`. Each card shows the `overallScore`, `classification` badge, and a summary of the four sub-scores.
+
+---
+
+### 6.3 Product Detail & AI Improvements
+
+**Route:** `/products/:id`
+
+The core diagnostic view. Shows the full `aiAnalysis` output for a product alongside all four sub-scores.
+
+**"Apply AI Improvements" flow:**
+
+```
+Merchant clicks the button
+        ↓
+Backend sends product data to Gemini Optimization Engine
+        ↓
+Gemini returns: new title, description, keywords, FAQs, CTAs
+        ↓
+Backend writes results into product.aiAnalysis fields
+        ↓
+Scoring Engine re-runs and updates product.scores + product.overallScore
+        ↓
+Store.overallScores recalculated from all products
+        ↓
+Updated data returned to frontend — score change visible immediately
+```
+
+The rewritten content is stored in `aiAnalysis.generatedTitle` and `aiAnalysis.generatedDescription` — separate from the original `title` and `description` fields, so the original is never overwritten destructively.
+
+---
+
+### 6.4 AI Shopping Simulation
+
+**Route:** `/ai-simulation`
+
+Lets merchants type a buyer query and see exactly which of their products an AI shopping agent would surface — and why. No Gemini call is involved here; the entire simulation runs as custom deterministic logic on the backend.
+
+#### How it actually works
+
+```
+Merchant types a query  e.g. "best waterproof hiking boots under ₹5000"
+        ↓
+POST /api/ai/simulate  { query, email }
+        ↓
+Backend looks up user → gets storeId → fetches all products for that store
+        ↓
+parseQuery(query) runs:
+  - extracts price filter  (under ₹5000 → maxPrice: 5000)
+  - extracts gender hint   (men / women / kids)
+  - extracts skin type hint (oily / dry / sensitive)
+  - strips stop words      (best, good, find, show, give …)
+  - matches multi-word phrases first  ("trekking poles", "dark spots")
+  - expands remaining single words via SYNONYMS table
+        ↓
+Each product is scored by scoreProduct():
+
+  1. HARD FILTERS (instant reject if any fail)
+     - price outside min/max range
+     - wrong targetGender (unisex always passes)
+     - wrong skinType     ("all skin types" always passes)
+
+  2. RELEVANCE  (0–100)
+     Checks each expanded keyword against:
+       title (+60)  category (+45)  tags (+35)
+       keyIngredients (+30)  skinType (+25)  suitableFor (+20)
+       ingredients (+18)  material (+15)  tastingNotes (+15)
+       description (+10)
+     Normalised against best-case (every keyword hits title)
+
+  3. DISCOVERABILITY  (0–100)
+     Pulled directly from product.scores.discoverability in MongoDB
+     (the AI-computed score from the Scoring Engine)
+     If not yet analysed → conservative estimate capped at 50
+
+  4. VISIBILITY  =  geometric mean of relevance × discoverability
+     visibility = round( (R/100) × (D/100)^0.7 × 100 )
+     Out-of-stock penalty: −12 points
+
+  5. THRESHOLD CHECK
+     titleHits > 0 → threshold 20
+     category/tag only → threshold 15
+     Below threshold → product filtered out
+        ↓
+Results sorted by visibility descending → returned as JSON array
+```
+
+The key insight the simulation demonstrates: a product can be perfectly relevant to the query but still score low visibility if its `discoverability` score in the DB is poor. That's the whole point — low AI readiness = invisible to AI agents even when it's the right product.
+
+#### SYNONYMS table — expansion rule
+
+The synonym map is intentionally tight. A word only expands to what it **literally is**, never to what it is associated with or used alongside.
+
+```
+✅ trekking → ["trekking", "hiking"]          (same activity)
+❌ trekking → outdoor, trail, mountain, shoes  (related but different things)
+
+✅ poles → ["poles", "trekking poles", "hiking poles", "walking poles"]
+❌ poles → shoes, hydration, backpack           (used together but NOT the same)
+```
+
+This prevents false positives — shoes showing up for a "trekking poles" query was the exact bug this rule was designed to fix.
+
+#### Output per product
+
+| Field | Description |
+|---|---|
+| `title` | Product name |
+| `image` | First image URL |
+| `price` | Product price |
+| `rating` / `reviews` | From product data |
+| `inStock` | Availability |
+| `classification` | Excellent / Good / Average / Worst (from DB) |
+| `chance` | Final visibility % (shown as "AI Visibility %" in UI) |
+| `discoverability` | Raw DB score so merchant sees why their score matters |
+
+---
+
+### 6.5 AI Product Studio
+
+**Route:** `/ai-studio`
+
+Content generation for new products before they go live. Accepts an image upload, title, category, and existing description (or none), and returns a full optimised content package.
+
+**Output:**
+- Optimised title
+- Full product description (AI-structured)
+- Meta title and meta description
+- Primary, secondary, and long-tail keywords
+- FAQ suggestions
+- CTA suggestions
+
+This does not write anything to the database — it's a generation tool. Merchants copy the output into Shopify manually.
+
+---
+
+### 6.6 Saarthi Voice Assistant
+
+**Available on:** All pages except `/ai-simulation` and `/products/:id`
+
+A fully voice-driven assistant — the merchant speaks, gets a spoken response back. Everything goes through the browser's native speech APIs on the frontend; the backend only handles the text ↔ Gemini part.
+
+#### Full pipeline
+
+```
+Merchant taps microphone button
+        ↓
+Browser Web Speech API starts listening
+(SpeechRecognition — built into Chrome/Edge)
+        ↓
+Speech → Text transcription happens entirely in the browser
+Supports: English, Hindi, Hinglish
+(lang set to "hi-IN" which handles all three naturally)
+        ↓
+Transcribed text sent to backend
+POST /api/ai/voice  { text, email }
+        ↓
+Backend fetches merchant's Store + all Products from MongoDB
+Builds a context payload:
+  - store name, category, overallScores
+  - product list with titles, scores, classification, aiProblems
+        ↓
+Context + merchant query passed to Gemini (GEMINI_VOICE_KEY)
+Gemini is prompted to respond as a store-aware assistant
+Reply is generated in the same language the merchant used
+        ↓
+Text response returned to frontend
+        ↓
+Browser SpeechSynthesis API reads the response aloud
+        ↓
+Merchant hears the spoken answer
+```
+
+#### Language handling
+
+The SpeechRecognition `lang` is set to `"hi-IN"`, which handles all three supported modes without switching:
+
+| Mode | Example | How it's handled |
+|---|---|---|
+| English | `"What is my store score?"` | Recognised natively |
+| Hindi | `"Mera sabse accha product kaunsa hai?"` | Recognised natively |
+| Hinglish | `"Mera current score kitna hai?"` | Recognised natively (mixed script is fine) |
+
+Gemini detects the language of the incoming text automatically and responds in the same language — no explicit language detection step needed.
+
+#### Example interactions
+
+```
+Merchant says:  "What is my store score?"
+Saarthi says:   "Your current store readiness score is 54 out of 100.
+                 Discoverability and trust signals need the most attention."
+
+Merchant says:  "Kaun sa product sabse zyada score kar raha hai?"
+Saarthi says:   "Aapka best performing product Vitamin C Brightening Serum hai,
+                 jiska overall score 78 hai."
+
+Merchant says:  "Which product needs improvement?"
+Saarthi says:   "TrailBlaze X has the lowest score at 28. The main issues are
+                 a generic title, no keywords, and missing trust signals."
+```
+
+Hidden on `/ai-simulation` and `/products/:id` to keep those focused analysis flows distraction-free.
+
+---
+
+### 6.7 Store Insights
+
+**Route:** `/insights`
+
+Shows store-wide health derived from the aggregated product and store data — not individual products. Surfaces patterns like missing policy coverage, FAQ gaps, and content issues that show up across multiple products.
+
+---
+
+### 6.8 Recommendations Engine
+
+**Route:** `/recommendations`
+
+Pulls `store.recommendationData` and renders it as a ranked action plan. The data is generated by calling the Recommendation Engine (its own Gemini key) with full store context — products, policies, FAQs, and current scores.
+
+Merchants can hit "Regenerate" to trigger a fresh Gemini call, which overwrites `store.recommendationData` and updates `store.recommendationGeneratedAt`.
+
+---
+
+### 6.9 Settings
+
+**Route:** `/settings`
+
+Reads and writes `store.storeName`, `store.email`, `store.domain`, `store.category`. No special logic — standard CRUD against the Store model.
+
+---
+
+## 7. API Reference
+
+Base URL: `http://localhost:5000`
+
+All protected routes require: `Authorization: Bearer <jwt_token>`
+
+### Auth
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | No | Create new user + store |
+| POST | `/api/auth/login` | No | Login, returns JWT |
+
+### Products
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/products` | Yes | All products for the logged-in store |
+| GET | `/api/products/:id` | Yes | Single product with full AI analysis |
+| POST | `/api/products/:id/optimize` | Yes | Trigger one-click AI improvement |
+| GET | `/api/products/:id/score` | Yes | Just the score breakdown |
+
+### Store / Insights
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/store` | Yes | Store profile + overallScores |
+| GET | `/api/insights` | Yes | Full store insights |
+| GET | `/api/insights/summary` | Yes | Dashboard summary scores |
+
+### AI Features
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/ai/simulate` | Yes | Run shopping simulation for a query |
+| POST | `/api/ai/studio` | Yes | Generate optimised content package |
+| POST | `/api/ai/voice` | Yes | Submit voice query |
+| GET | `/api/ai/recommendations` | Yes | Fetch store recommendations |
+| POST | `/api/ai/recommendations/regenerate` | Yes | Regenerate from fresh Gemini call |
+
+### Reports
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/api/reports/download` | Yes | Download progress report (.doc) |
+
+---
+
+## 8. User Flow
+
+```
+Merchant logs in
+      │
+      ▼
+JWT issued → stored client-side
+      │
+      ▼
+Dashboard loads
+  → GET /api/store          (overallScores for widgets)
+  → GET /api/products       (bottom 5 performers)
+  → GET /api/ai/recommendations (top actions)
+      │
+      ▼
+Merchant opens a product
+  → GET /api/products/:id   (scores + full aiAnalysis)
+      │
+      ▼
+Merchant clicks "Apply AI Improvements"
+  → POST /api/products/:id/optimize
+  → Gemini rewrites content
+  → Scores recalculated
+  → Store overallScores updated
+  → Response returns updated product
+      │
+      ▼
+Merchant runs a simulation
+  → POST /api/ai/simulate   (query + email)
+  → Custom engine: parseQuery → expand synonyms → score each product
+  → Results sorted by visibility % — no Gemini involved
+      │
+      ▼
+Merchant reviews recommendations
+  → GET /api/ai/recommendations
+  → Can regenerate if needed
+      │
+      ▼
+Merchant speaks to voice assistant
+  → Browser SpeechRecognition transcribes speech → text
+  → POST /api/ai/voice  (transcribed text + email)
+  → Backend fetches Store + Products → builds context
+  → Gemini (GEMINI_VOICE_KEY) generates store-aware text response
+  → Browser SpeechSynthesis reads response aloud
+      │
+      ▼
+  Repeat cycle as needed
+```
+
+---
+
+## 9. Installation & Setup
+
+### Prerequisites
+
+- Node.js >= 18
+- npm >= 9
+- MongoDB (local or Atlas)
+- 4 Gemini API keys
+
+### Step 1 — Clone
+
+```bash
+git clone https://github.com/Saurav07-dot/VyaparSaarthi.git
+cd VYAPARSaarthi
+```
+
+### Step 2 — Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Runs at `http://localhost:5173`
+
+Packages installed: `react`, `react-router-dom`, `axios`, `tailwindcss`, `lucide-react`, `framer-motion`, `recharts`
+
+### Step 3 — Backend
+
+```bash
+cd backend
+npm install
+nodemon server.js
+```
+
+Runs at `http://localhost:5000`
+
+Packages installed: `express`, `mongoose`, `cors`, `dotenv`, `jsonwebtoken`, `bcryptjs`, `multer`, `@google/generative-ai`, `nodemon`
+
+### Step 4 — Seed the database
+
+```bash
+cd backend
+node seed/seed.js
+```
+
+This creates 5 stores, 35 products, and 5 user accounts. See [Section 4](#4-seed-data) for login credentials.
+
+### Step 5 — Configure environment variables
+
+See [Section 10](#10-environment-variables).
+
+---
+
+## 10. Environment Variables
+
+Create `backend/.env`:
+
+```env
+# Server
+PORT=5000
+
+# MongoDB
+MONGO_URI=your_mongodb_connection_string
+
+# JWT
+JWT_SECRET=your_jwt_secret_key
+
+# Gemini — Scoring & Optimization
+GEMINI_API_KEY=your_gemini_api_key_1
+
+# Gemini — Recommendation Engine
+GEMINI_RECOMMENDATION_KEY=your_gemini_api_key_2
+
+# Gemini — AI Product Studio
+GEMINI_STUDIO_API=your_gemini_api_key_3
+
+# Gemini — Voice Assistant
+GEMINI_VOICE_KEY=your_gemini_api_key_4
+```
+
+Never commit `.env` to version control. Add `backend/.env` to `.gitignore`.
+
+---
+
+## 11. Folder Structure
+
+```
+VYAPARSaarthi/
+│
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── Dashboard/
+│       │   ├── Products/
+│       │   ├── Simulation/
+│       │   ├── Studio/
+│       │   ├── Voice/
+│       │   └── Shared/
+│       ├── pages/
+│       │   ├── DashboardPage.jsx
+│       │   ├── ProductsPage.jsx
+│       │   ├── ProductDetailPage.jsx
+│       │   ├── SimulationPage.jsx
+│       │   ├── StudioPage.jsx
+│       │   ├── InsightsPage.jsx
+│       │   ├── RecommendationsPage.jsx
+│       │   └── SettingsPage.jsx
+│       └── services/
+│           ├── authService.js
+│           ├── productService.js
+│           ├── aiService.js
+│           └── insightService.js
+│
+└── backend/
+    ├── controllers/
+    │   ├── authController.js
+    │   ├── productController.js
+    │   ├── aiController.js
+    │   └── insightController.js
+    ├── routes/
+    │   ├── auth.js
+    │   ├── products.js
+    │   ├── ai.js
+    │   └── insights.js
+    ├── services/
+    │   ├── scoringService.js
+    │   ├── optimizationService.js
+    │   ├── simulationService.js
+    │   ├── recommendationService.js
+    │   ├── voiceService.js
+    │   └── studioService.js
+    ├── models/
+    │   ├── User.js
+    │   ├── Store.js
+    │   └── Product.js
+    ├── seed/
+    │   └── seed.js
+    ├── middleware/
+    │   ├── authMiddleware.js
+    │   └── errorMiddleware.js
+    ├── .env
+    └── server.js
+```
+
+---
+
+## 12. Future Scope
+
+| Feature | What it means |
+|---|---|
+| Shopify Live Integration | OAuth connection to real merchant stores — replaces synthetic seed data |
+| Real AI Agent APIs | Hook into Perplexity, Google Shopping Graph, ChatGPT plugins for authentic simulations |
+| Image Optimization | AI analysis of product images, not just text |
+| Score History | Track score changes over time per product — show improvement trends |
+| Multilingual Expansion | Tamil, Telugu, Bengali, Marathi beyond current Hinglish |
+| Predictive Recommendations | Flag products at risk before scores drop |
+| Bulk Optimization | Apply AI improvements to many products in one go |
+| Rollback | Restore original product content if merchant doesn't like AI changes |
+
+---
+
+## 👥 Team
+
+| Name | Role |
+|---|---|
+| **Saurav Kumar** | Full Stack + AI Integration |
+| **Ankit Kumar Jha** | Product Design + Frontend |
+
+**Team Name:** PLAN B  
+**Hackathon:** Kasparro Agentic Commerce Hackathon  
+
+---
+
+*VYAPARsaarthi — Built for the Kasparro Agentic Commerce Hackathon*  

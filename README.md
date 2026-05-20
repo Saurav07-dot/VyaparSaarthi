@@ -1,4 +1,4 @@
-# VYAPARSaarthi 🚀
+# VYAPARsaarthi 🚀
 ### AI Representation Optimizer for Merchants
 
 VYAPARSaarthi is an AI-powered merchant intelligence platform built for the Kasparro Track 5: AI Representation Optimizer challenge.
@@ -455,7 +455,7 @@ backend/
 ## 1. Clone Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Saurav07-dot/VyaparSaarthi.git
 cd VYAPARSaarthi
 ```
 
@@ -605,19 +605,22 @@ Demo Video:
 
 ---
 
-# Built For
+## 👥 Team
 
-Kasparro Hackathon
+| Name | Role |
+|---|---|
+| **Saurav Kumar** | Full Stack + AI Integration |
+| **Ankit Kumar Jha** | Product Design + Frontend |
 
-Track 5:
-AI Representation Optimizer
-
----
-
-# Team-PLAN B
-
-Name:Saurav Kumar
-
-Contribution:
+**Team Name:** PLAN B  
+**Hackathon:** Kasparro Agentic Commerce Hackathon  
 
 ---
+
+<div align="center">
+
+**VYAPARsaarthi** — *Helping merchants improve AI visibility and product discoverability.*
+
+Built for the Kasparro Agentic Commerce Hackathon
+
+</div>

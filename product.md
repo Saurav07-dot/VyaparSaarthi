@@ -416,6 +416,7 @@ White-label licensing for Shopify agencies to offer VYAPARsaarthi to their merch
 | Saarthi Voice Assistant | ✅ English |
 | AI Product Studio | ✅ 10 generations/month |
 | Recommendations | Full ranked list |
+| Downloadable Reports | ✅  doc|
 | Support | Email Support |
 
 **Price: ₹299/month** *(₹249/month billed annually)*
@@ -434,7 +435,7 @@ White-label licensing for Shopify agencies to offer VYAPARsaarthi to their merch
 | Saarthi Voice Assistant | ✅ English + Hinglish |
 | AI Product Studio | ✅ Unlimited |
 | Recommendations | Full + Priority Insights |
-| Downloadable Reports | ✅ PDF |
+| Downloadable Reports | ✅ PDF + doc|
 | Support | Priority Support |
 
 **Price: ₹699/month** *(₹599/month billed annually)*
